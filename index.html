@@ -1,14 +1,45 @@
-
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8"/>
-    <title>Data Viz Project</title>
-    <script src="https://d3js.org/d3.v7.min.js"></script>
-    <script src="https://unpkg.com/topojson@3"></script>
-  </head>
-  <body>
-    <h1>Data Viz Project</h1>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>U.S. Traffic Accident Trends</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <h1>U.S. Traffic Accident Trends</h1>
+
+    <!-- Year Selector for Dynamic Visualization -->
+    <div id="year-selector">
+        <label for="year">Select Year:</label>
+        <select id="year">
+            <option value="All Years">All Years</option>
+            <option value="2016">2016</option>
+            <option value="2017">2017</option>
+            <option value="2018">2018</option>
+            <option value="2019">2019</option>
+            <option value="2020">2020</option>
+            <option value="2021">2021</option>
+            <option value="2022">2022</option>
+            <option value="2023">2023</option>
+        </select>
+    </div>
+
+    <!-- Dashboard Container -->
+    <div id="dashboard-container">
+        <div id="left-column">
+            <div id="bar-chart-container" class="chart-container"></div>
+            <div id="line-chart-container" class="chart-container"></div>
+        </div>
+        <div id="map-container" class="chart-container"></div>
+    </div>
+
+    <!-- D3.js Library -->
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <!-- Scripts for Each Chart -->
+    <script src="scripts/choroplethMap.js"></script>
+    <script src="scripts/barChart.js"></script>
+    <script src="scripts/lineChart.js"></script>
     <script src="scripts/main.js"></script>
-  </body>
+</body>
 </html>
