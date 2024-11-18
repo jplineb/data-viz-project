@@ -299,7 +299,7 @@ function createCountyChoroplethMap() {
                     const countyName = d3.select(this).attr("class");
                     console.log(countyName);
                     if(countyName) {
-                        window.location.href = `county_level.html?county=${countyName}`;
+                        window.location.href = `county_level.html?state=${stateAbbr}&county=${countyName}`;
                     }
                 })
                 .on("mouseover", function(event, d) {
