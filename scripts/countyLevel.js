@@ -8,7 +8,6 @@ const stateAbbr = getQueryParam("state");
 console.log(countyName);
 console.log(stateAbbr);
 
-// Load both data sources using Promise.all
 Promise.all([
     d3.json(`./Data/states/${stateAbbr}/${countyName}.geo.json`),
     d3.csv('./Data/US_Accidents_small_processed.csv')
@@ -17,7 +16,7 @@ Promise.all([
     const countyAccidents = accidentData.filter(d => d.County === countyName);
     
     // Create the map
-    const map = L.map('map').setView([38.5, -98], 4); // Default view, will adjust
+    const map = L.map('map').setView([38.5, -98], 4);
     
     // Add OpenStreetMap tiles
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {

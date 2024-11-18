@@ -516,10 +516,10 @@ function createStateLineChart(accidentsData, stateAbbr) {
 
     // Severity levels
     const severityLevels = Array.from(new Set(stateAccidents.map(d => d.Severity)))
-        .sort((a, b) => a - b); // Sort numerically
+        .sort((a, b) => a - b);
     const severityColorScale = d3.scaleOrdinal()
         .domain(severityLevels)
-        .range(['#fee5d9','#fcae91','#fb6a4a','#de2d26']); // color scale
+        .range(['#fee5d9','#fcae91','#fb6a4a','#de2d26']);
 
 
     console.log(stateAccidents);
@@ -817,7 +817,7 @@ function createCountyChoroplethMap() {
 
             const legendSvg = d3.select("#map-container").append("svg")
                 .attr("id", "legend")
-                .attr("width", legendWidth + 50)  // add padding
+                .attr("width", legendWidth + 50) 
                 .attr("height", legendHeight + 50)
                 .style("position", "absolute")
                 .style("right", "10px")
@@ -875,7 +875,8 @@ function createCountyChoroplethMap() {
                 .style("font-size", "10px")
                 .text("Number of Accidents");
 
-        
+            // Call all the charts
+            // I know this is a bit messy, but it's just for the sake of the demo
             createStateLineChart(accidentsData, stateAbbr);
             createStateBarChart(accidentsData, stateAbbr);
             createWeatherBubbleChart(accidentsData, stateAbbr);
