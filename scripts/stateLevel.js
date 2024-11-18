@@ -121,7 +121,7 @@ function createStateLineChart(accidentsData, stateAbbr) {
         .sort((a, b) => a - b); // Sort numerically
     const severityColorScale = d3.scaleOrdinal()
         .domain(severityLevels)
-        .range(['#fee5d9','#fcae91','#fb6a4a','#de2d26']);
+        .range(['#fee5d9','#fcae91','#fb6a4a','#de2d26']); // color scale
 
 
     console.log(stateAccidents);
@@ -403,7 +403,7 @@ function createCountyChoroplethMap() {
 
             const legendSvg = d3.select("#map-container").append("svg")
                 .attr("id", "legend")
-                .attr("width", legendWidth + 40)
+                .attr("width", legendWidth + 50)  // add padding
                 .attr("height", legendHeight + 50)
                 .style("position", "absolute")
                 .style("right", "10px")
@@ -429,8 +429,11 @@ function createCountyChoroplethMap() {
 
             linearGradient.selectAll("stop")
                 .data([
-                    {offset: "0%", color: d3.interpolateReds(0)},
-                    {offset: "100%", color: d3.interpolateReds(1)}
+                    {offset: "0%", color: colorScale(0)},
+                    {offset: "25%", color: colorScale(5)},
+                    {offset: "50%", color: colorScale(10)},
+                    {offset: "75%", color: colorScale(15)},
+                    {offset: "100%", color: colorScale(20)} 
                 ])
                 .enter().append("stop")
                 .attr("offset", d => d.offset)

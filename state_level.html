@@ -10,9 +10,15 @@
 <body>
     <h1>State Traffic Accidents - County Level</h1>
     <a href="index.html" class="back-button">Back to US Level</a>
-    <div id="map-container"></div>
-    <div id="line-chart-container"></div>
-    <div id="bar-chart-container"></div>
+
+    <!-- Dashboard Container -->
+    <div id="dashboard-container">
+        <div id="left-column">
+            <div id="line-chart-container" class="chart-container"></div>
+            <div id="bar-chart-container" class="chart-container"></div>
+        </div>
+        <div id="map-container" class="chart-container"></div>
+    </div>
 
     <script src="scripts/stateLevel.js"></script>
     
