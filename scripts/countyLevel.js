@@ -41,9 +41,43 @@ Promise.all([
             fillOpacity: 0.8
         })
         .bindPopup(`
-            <strong>Severity:</strong> ${accident.Severity}<br>
-            <strong>Start Time:</strong> ${accident.Start_Time}<br>
-            <strong>Description:</strong> ${accident.Description}
+            <div style="font-family: Arial, sans-serif; min-width: 200px;">
+                <h3 style="margin: 0 0 10px 0; color: #333; border-bottom: 2px solid #ff4444;">Accident Details</h3>
+                
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: #ff4444;">📍 Location</strong><br>
+                    ${accident.Street}<br>
+                    ${accident.City}, ${accident.State} ${accident.Zipcode}
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: #ff4444;">⏰ Time & Duration</strong><br>
+                    Start: ${new Date(accident.Start_Time).toLocaleString()}<br>
+                    End: ${new Date(accident.End_Time).toLocaleString()}<br>
+                    Period: ${accident.Sunrise_Sunset}
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: #ff4444;">🌤️ Weather Conditions</strong><br>
+                    Temperature: ${accident['Temperature(F)']}°F<br>
+                    Weather: ${accident.Weather_Condition}<br>
+                    Visibility: ${accident['Visibility(mi)']} mi<br>
+                    Wind: ${accident.Wind_Speed} mph ${accident.Wind_Direction}
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <strong style="color: #ff4444;">⚠️ Severity & Features</strong><br>
+                    Severity Level: ${accident.Severity}<br>
+                    Distance: ${accident['Distance(mi)']} mi<br>
+                    ${accident.Junction === 'True' ? '• Junction<br>' : ''}
+                    ${accident.Traffic_Signal === 'True' ? '• Traffic Signal<br>' : ''}
+                    ${accident.Crossing === 'True' ? '• Crossing<br>' : ''}
+                </div>
+
+                <div style="margin-top: 10px; font-style: italic; font-size: 0.9em;">
+                    ${accident.Description}
+                </div>
+            </div>
         `)
         .addTo(map);
     });

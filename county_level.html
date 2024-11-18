@@ -15,8 +15,15 @@
 </head>
 <body>
     <h1>State Traffic Accidents - County Level</h1>
+
+    <a id="back-button" class="back-button">Back to State Level</a>
+    
+    <div id="map" class="interactive-map"></div>
+
     <script src="scripts/countyLevel.js"></script>
-    <div id="map" style="height: 500px;"></div>
+    <script>
+        document.getElementById('back-button').href = `state_level.html?state=${stateAbbr}`;
+    </script>
     
 </body>
 </body>
