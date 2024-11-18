@@ -8,7 +8,7 @@ function createTimeDistribution(accidentsData, stateAbbr) {
 
     const margin = { top: 50, right: 50, bottom: 50, left: 50 };
     const width = 600 - margin.left - margin.right;
-    const height = 600 - margin.top - margin.bottom;
+    const height = 700 - margin.top - margin.bottom;
     const innerRadius = 100;
     const outerRadius = Math.min(width, height) / 2;
 
@@ -45,7 +45,7 @@ function createTimeDistribution(accidentsData, stateAbbr) {
     // Add outer circle
     clockFace.append("circle")
         .attr("r", outerRadius + 10)
-        .attr("fill", "#f8f9fa")
+        .attr("fill", "transparent")
         .attr("stroke", "#dee2e6")
         .attr("stroke-width", 2);
 
@@ -124,6 +124,7 @@ function createTimeDistribution(accidentsData, stateAbbr) {
             .style("opacity", 1)
             .style("filter", "brightness(1.1)");
 
+        // Dynamically update tooltip using auto-generated text html
         tooltip.style("visibility", "visible")
             .html(`
                 <div style="text-align: center;">
@@ -177,7 +178,7 @@ function createTimeDistribution(accidentsData, stateAbbr) {
     svg.append("text")
         .attr("class", "chart-title")
         .attr("text-anchor", "middle")
-        .attr("transform", `translate(0, ${-height/2 - 40})`) // Adjusted the vertical position
+        .attr("transform", `translate(0, ${-height/2 - 20})`)
         .style("font-size", "18px")
         .style("font-weight", "bold")
         .style("fill", "#212529")
@@ -395,9 +396,9 @@ function createWeatherBubbleChart(accidentsData, stateAbbr) {
 function createStateBarChart(accidentsData, stateAbbr) {
     d3.select("#bar-chart-container").html("");
 
-    const margin = { top: 10, right: 20, bottom: 70, left: 60 };
+    const margin = { top: 30, right: 20, bottom: 70, left: 60 };
     const width = 530 - margin.left - margin.right;
-    const height = 300 - margin.top - margin.bottom;
+    const height = 400 - margin.top - margin.bottom;
 
     const svg = d3.select("#bar-chart-container")
         .append("svg")
@@ -484,6 +485,15 @@ function createStateBarChart(accidentsData, stateAbbr) {
         .attr("text-anchor", "middle")
         .style("font-size", "13px")
         .text("Accidents");
+    
+    // Add title
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", -margin.top / 2)
+        .attr("text-anchor", "middle")
+        .style("font-size", "14px")
+        .style("font-weight", "bold")
+        .text("Top 10 Counties by Number of Accidents");
 }
 
 function createStateLineChart(accidentsData, stateAbbr) {
@@ -647,7 +657,16 @@ function createStateLineChart(accidentsData, stateAbbr) {
         .text(d => d3.format(",")(d.total))
         .style("font-size", "10px");
 
-    // Add axis labels
+    // Add title
+    svg.append("text")
+        .attr("x", width / 2)
+        .attr("y", -5)
+        .attr("text-anchor", "middle")
+        .style("font-size", "16px")
+        .style("font-weight", "bold")
+        .text("Monthly Accident Severity Distribution");
+
+    // Add axis labels (with removed tick lines)
     svg.append("text")
         .attr("x", width / 2)
         .attr("y", height + margin.bottom - 10)
@@ -706,8 +725,8 @@ function createCountyChoroplethMap() {
             };
 
             // Set up SVG dimensions
-            const width = 800;
-            const height = 600;
+            const width = 1000;
+            const height = 800;
 
             const svg = d3.select("#map-container")
                 .append("svg")
@@ -784,9 +803,16 @@ function createCountyChoroplethMap() {
                     d3.select(this).style("stroke-width", "0.5px").style("stroke", "#666");
                 });
         
-
+                svg.append("text")
+                    .attr("x", width / 2)
+                    .attr("y", 20)
+                    .attr("text-anchor", "Top")
+                    .style("font-size", "20px")
+                    .style("font-weight", "bold")
+                    .text(`Traffic Accidents in ${stateAbbr}`);
+                    
             // Add Legend
-            const legendWidth = 20;
+            const legendWidth = 50;
             const legendHeight = 200;
 
             const legendSvg = d3.select("#map-container").append("svg")
@@ -840,6 +866,14 @@ function createCountyChoroplethMap() {
                 .attr("class", "legend-axis")
                 .attr("transform", `translate(${legendWidth}, 10)`)
                 .call(legendAxis);
+            
+            // Add title to the legend
+            legendSvg.append("text")
+                .attr("x", legendWidth - 50)
+                .attr("y", legendHeight + 40)
+                .attr("text-anchor", "start")
+                .style("font-size", "10px")
+                .text("Number of Accidents");
 
         
             createStateLineChart(accidentsData, stateAbbr);
