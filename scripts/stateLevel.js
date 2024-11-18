@@ -116,19 +116,47 @@ function createStateLineChart(accidentsData, stateAbbr) {
     // Filter accidents for the selected state
     const stateAccidents = accidentsData.filter(d => d.State.toUpperCase() === stateAbbr.toUpperCase());
 
+    // Severity levels
+    const severityLevels = Array.from(new Set(stateAccidents.map(d => d.Severity)))
+        .sort((a, b) => a - b); // Sort numerically
+    const severityColorScale = d3.scaleOrdinal()
+        .domain(severityLevels)
+        .range(['#fee5d9','#fcae91','#fb6a4a','#de2d26']);
+
+
     console.log(stateAccidents);
-    // Process the data to get monthly counts
-    const monthlyData = d3.rollups(
-        stateAccidents,
-        v => v.length,
-        d => d.Month
-    );
+    const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    // Process the data to get monthly counts by severity
+    const monthlyData = monthOrder.map(month => {
+        const monthAccidents = stateAccidents.filter(d => d.Month === month);
+        const severityCounts = {};
+        
+        // Initialize all severity levels with 0
+        severityLevels.forEach(severity => {
+            severityCounts[severity] = 0;
+        });
+        
+        // Count accidents for each severity
+        monthAccidents.forEach(accident => {
+            severityCounts[accident.Severity] = (severityCounts[accident.Severity] || 0) + 1;
+        });
+
+        return {
+            month: month,
+            ...severityCounts
+        };
+    });
 
     // Convert to array of objects and sort by month
-    const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const processedData = monthlyData
-        .map(([month, count]) => ({ Month_Name: month, Accident_Count: count }))
-        .sort((a, b) => monthOrder.indexOf(a.Month_Name) - monthOrder.indexOf(b.Month_Name));
+    monthlyData.sort((a, b) => monthOrder.indexOf(a.month) - monthOrder.indexOf(b.month));
+
+    // Create stack data
+    const stack = d3.stack()
+        .keys(severityLevels)
+        .order(d3.stackOrderNone)
+        .offset(d3.stackOffsetNone);
+
+    const stackedData = stack(monthlyData);
 
     // Set up scales
     const x = d3.scalePoint()
@@ -137,7 +165,7 @@ function createStateLineChart(accidentsData, stateAbbr) {
         .padding(0.5);
 
     const y = d3.scaleLinear()
-        .domain([0, d3.max(processedData, d => d.Accident_Count)])
+        .domain([0, 50])
         .nice()
         .range([height, 0]);
 
@@ -151,40 +179,84 @@ function createStateLineChart(accidentsData, stateAbbr) {
         .style("font-size", "12px");
 
     svg.append("g")
-        .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format(",")).tickSize(-width))
+        .call(d3.axisLeft(y).ticks(5).tickFormat(d3.format(",")))
         .style("font-size", "12px");
 
-    // Add the line
+    // Add stacked areas
+    const area = d3.area()
+        .x(d => x(d.data.month))
+        .y0(d => y(d[0]))
+        .y1(d => y(d[1]));
+
+    svg.selectAll(".severity-area")
+        .data(stackedData)
+        .join("path")
+        .attr("class", "severity-area")
+        .attr("d", area)
+        .attr("fill", d => severityColorScale(d.key))
+        .attr("opacity", 0.7);
+
+    // Add legend
+    const legend = svg.append("g")
+        .attr("class", "legend")
+        .attr("transform", `translate(${width - 100}, 10)`);
+
+    legend.selectAll(".legend-item")
+        .data(severityLevels)
+        .join("g")
+        .attr("class", "legend-item")
+        .attr("transform", (d, i) => `translate(0, ${i * 20})`)
+        .call(g => {
+            g.append("rect")
+                .attr("width", 15)
+                .attr("height", 15)
+                .attr("fill", d => severityColorScale(d))
+                .attr("opacity", 0.7);
+
+            g.append("text")
+                .attr("x", 20)
+                .attr("y", 12)
+                .text(d => `Severity ${d}`)
+                .style("font-size", "12px");
+        });
+
+    // Calculate total accidents per month for the line chart
+    const monthlyTotals = monthlyData.map(d => ({
+        month: d.month,
+        total: severityLevels.reduce((sum, severity) => sum + (d[severity] || 0), 0)
+    }));
+
+    // Add the line for total accidents
     const line = d3.line()
-        .x(d => x(d.Month_Name))
-        .y(d => y(d.Accident_Count));
+        .x(d => x(d.month))
+        .y(d => y(d.total));
 
     svg.append("path")
-        .datum(processedData)
+        .datum(monthlyTotals)
         .attr("fill", "none")
         .attr("stroke", "#FF4500")
         .attr("stroke-width", 2)
         .attr("d", line);
 
-    // Add dots
+    // Add dots for total accidents
     svg.selectAll(".dot")
-        .data(processedData)
+        .data(monthlyTotals)
         .enter()
         .append("circle")
-        .attr("cx", d => x(d.Month_Name))
-        .attr("cy", d => y(d.Accident_Count))
+        .attr("cx", d => x(d.month))
+        .attr("cy", d => y(d.total))
         .attr("r", 4)
         .attr("fill", "#FF4500");
 
-    // Add value labels
+    // Add value labels for total accidents
     svg.selectAll(".label")
-        .data(processedData)
+        .data(monthlyTotals)
         .enter()
         .append("text")
-        .attr("x", d => x(d.Month_Name))
-        .attr("y", d => y(d.Accident_Count) - 10)
+        .attr("x", d => x(d.month))
+        .attr("y", d => y(d.total) - 10)
         .attr("text-anchor", "middle")
-        .text(d => d3.format(",")(d.Accident_Count))
+        .text(d => d3.format(",")(d.total))
         .style("font-size", "10px");
 
     // Add axis labels
@@ -280,7 +352,7 @@ function createCountyChoroplethMap() {
             
             // Tooltip
             const tooltip = d3.select("body").append("div").attr("class", "tooltip");
-            
+
             // Draw counties
             svg.selectAll("path.county")
                 .data(mergedCounties.features)
