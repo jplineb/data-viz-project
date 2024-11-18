@@ -286,6 +286,7 @@ function createCountyChoroplethMap() {
                 .data(mergedCounties.features)
                 .enter()
                 .append("path")
+                .attr("class", d => d.properties.name)
                 .attr("d", path)
                 .attr("fill", d => {
                     const countyName = d.properties.name; // Adjust based on GeoJSON's county name property
@@ -294,6 +295,13 @@ function createCountyChoroplethMap() {
                 })
                 .attr("stroke", "#333")
                 .attr("stroke-width", 0.5)
+                .on("click", function(event) {
+                    const countyName = d3.select(this).attr("class");
+                    console.log(countyName);
+                    if(countyName) {
+                        window.location.href = `county_level.html?county=${countyName}`;
+                    }
+                })
                 .on("mouseover", function(event, d) {
                     console.log("Mouse over county:", d.properties.name);
                     const countyName = d.properties.name; // Adjust based on GeoJSON's county name property
