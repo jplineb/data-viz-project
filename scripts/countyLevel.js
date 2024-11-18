@@ -41,6 +41,7 @@ Promise.all([
             opacity: 1,
             fillOpacity: 0.8
         })
+        // Make the popup info with auto-generated html
         .bindPopup(`
             <div style="font-family: Arial, sans-serif; min-width: 200px;">
                 <h3 style="margin: 0 0 10px 0; color: #333; border-bottom: 2px solid #ff4444;">Accident Details</h3>
