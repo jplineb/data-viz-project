@@ -234,12 +234,10 @@ function createCountyChoroplethMap() {
         const accidentsCountMap = new Map(accidentsByCounty);
 
         // Load all county GeoJSON files for the selected state
-        // Assuming each county has its own GeoJSON file named as 'CountyName.geojson'
-        // Collect all GeoJSON promises
         const countyFiles = accidentsByCounty.map(([countyName, count]) => `${countiesGeoJsonDir}${countyName}.geo.json`);
-
         const geoJsonPromises = countyFiles.map(file => d3.json(file));
 
+        // Promise for smooth loading
         Promise.all(geoJsonPromises).then(countyDataArray => {
             // Merge all counties into a single GeoJSON FeatureCollection
             const mergedCounties = {
@@ -272,7 +270,7 @@ function createCountyChoroplethMap() {
             // Draw state map
             stateData = d3.json(stateGeoJsonDir).then(data => {
                 svg.append("path")
-                    .datum(data) // Use the resolved data here
+                    .datum(data)
                     .attr("d", path)
                     .attr("fill", "rgba(240, 240, 245, 0)")
                     .attr("stroke", "#333")
@@ -280,7 +278,9 @@ function createCountyChoroplethMap() {
                     .attr("pointer-events", "none");
             });
             
+            // Tooltip
             const tooltip = d3.select("body").append("div").attr("class", "tooltip");
+            
             // Draw counties
             svg.selectAll("path.county")
                 .data(mergedCounties.features)

@@ -31,6 +31,7 @@ Promise.all([
     map.fitBounds(countyLayer.getBounds());
     
     // Add accident points
+    // Along with cool popup information
     countyAccidents.forEach(accident => {
         L.circleMarker([accident.Start_Lat, accident.Start_Lng], {
             radius: 5,
