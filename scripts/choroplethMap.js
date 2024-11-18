@@ -34,7 +34,14 @@ function createHeatmap() {
                         return count ? colorScale(count) : zeroColor;
                     })
                     .style("stroke", "#666")
-                    .style("stroke-width", "0.5px");
+                    .style("stroke-width", "0.5px")
+                    // Redirect to state level page
+                    .on("click", function(event) {
+                        const stateAbbr = d3.select(this).attr("class");
+                        if(stateAbbr) {
+                            window.location.href = `state_level.html?state=${stateAbbr.toUpperCase()}`;
+                        }
+                    });
 
                 const tooltip = d3.select("body").append("div").attr("class", "tooltip");
 
