@@ -1,0 +1,55 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Prevent scrolling */
+  height: 100vh; /* Ensure full viewport usage */
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  font-size: 0.8em;
+}
+
+/* Dashboard container */
+#dashboard {
+  position: relative; /* Allows absolute positioning of child elements */
+  flex: 1; /* Take remaining space after header */
+  overflow: hidden; /* Ensure no scrolling */
+}
+
+/* Map container styles */
+#map {
+  position: absolute; /* Enable free positioning */
+  top: 0%; /* Adjust this value to position map vertically */
+  left: 20%; /* Adjust this value to position map horizontally */
+  width: 80%; /* Adjust width of the map container */
+  height: 60%; /* Adjust height of the map container */
+  
+}
+
+/* Bar chart container styles */
+#barChart {
+  position: absolute; /* Enable free positioning */
+  top: 0%; /* Adjust this value to position bar chart vertically */
+  left: -3%; /* Adjust this value to position bar chart horizontally */
+  width: 40%; /* Adjust width of the bar chart container */
+  height: 100%; /* Adjust height of the bar chart container */
+  
+}
+
+/* Optional tooltip styles for better appearance */
+.tooltip {
+  position: absolute;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 0.5em;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  font-size: 0.9em;
+  pointer-events: none; /* Ensure tooltip does not interfere with hovering */
+}
