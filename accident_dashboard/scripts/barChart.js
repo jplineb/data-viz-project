@@ -1,7 +1,7 @@
 function drawBarChart(stateData, onBarClick) {
     const width = document.getElementById("barChart").offsetWidth; // Dynamically adapt to container
     const height = document.getElementById("barChart").offsetHeight; // Dynamically adapt to container
-    const margin = { top: 20, right: 20, bottom: 50, left: 100 }; // Adjust margins for layout
+    const margin = { top: 20, right: 20, bottom: 50, left: 100 }; // Adjust margins for horizontal layout
 
     const svg = d3
         .select("#barChart")
@@ -9,6 +9,21 @@ function drawBarChart(stateData, onBarClick) {
         .append("svg")
         .attr("width", width)
         .attr("height", height);
+
+    // State abbreviation to full name mapping
+    const stateNames = {
+        AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California",
+        CO: "Colorado", CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia",
+        HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa",
+        KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland",
+        MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi",
+        MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire",
+        NJ: "New Jersey", NM: "New Mexico", NY: "New York", NC: "North Carolina",
+        ND: "North Dakota", OH: "Ohio", OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania",
+        RI: "Rhode Island", SC: "South Carolina", SD: "South Dakota", TN: "Tennessee",
+        TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia", WA: "Washington",
+        WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", DC: "District of Columbia"
+    };
 
     // Sort the data in descending order based on Accident_Count
     stateData.sort((a, b) => d3.descending(+a.Accident_Count, +b.Accident_Count));
@@ -45,27 +60,6 @@ function drawBarChart(stateData, onBarClick) {
     svg.append("g")
         .attr("transform", `translate(${margin.left},0)`) // Move to the left
         .call(d3.axisLeft(yScale).tickSizeOuter(0)); // Remove outer ticks
-
-    // Add X-axis Label
-    svg.append("text")
-        .attr("id", "x-axis-label")
-        .attr("x", (width - margin.left - margin.right) / 2 + margin.left) // Center horizontally
-        .attr("y", height - margin.bottom + 40) // Below the x-axis
-        .attr("text-anchor", "middle")
-        .attr("font-size", "14px")
-        .attr("fill", "#333")
-        .text("Accident Count");
-
-    // Add Y-axis Label
-    svg.append("text")
-        .attr("id", "y-axis-label")
-        .attr("x", -height / 2) // Centered vertically
-        .attr("y", margin.left - 35) // To the left of the y-axis
-        .attr("text-anchor", "middle")
-        .attr("font-size", "14px")
-        .attr("fill", "#333")
-        .attr("transform", "rotate(-90)") // Rotate for y-axis orientation
-        .text("States");
 
     // Static Label for State and Count (Initially Hidden)
     const labelGroup = svg
@@ -114,8 +108,8 @@ function drawBarChart(stateData, onBarClick) {
             // Show the hover label
             labelGroup.style("visibility", "visible");
 
-            // Update the static label with the state and count
-            d3.select("#hover-state").text(`State: ${d.State}`);
+            // Update the static label with the full state name and count
+            d3.select("#hover-state").text(`State: ${stateNames[d.State]}`);
             d3.select("#hover-count").text(`Count: ${d.Accident_Count}`);
 
             // Highlight the hovered bar with a gold border
