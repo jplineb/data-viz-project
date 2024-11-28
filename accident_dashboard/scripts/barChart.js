@@ -46,27 +46,32 @@ function drawBarChart(stateData, onBarClick) {
         .attr("transform", `translate(${margin.left},0)`) // Move to the left
         .call(d3.axisLeft(yScale).tickSizeOuter(0)); // Remove outer ticks
 
-    // Hover label container
-    const hoverLabel = svg
+    // Static Label for State and Count (Initially Hidden)
+    const labelGroup = svg
         .append("g")
+        .attr("id", "hover-label")
         .style("visibility", "hidden");
 
-    hoverLabel
+    // Define manual position for the hover label
+    const labelX = width - 300; // Adjust this for horizontal position
+    const labelY = height - margin.bottom - 350; // Adjust this for vertical position
+
+    labelGroup
         .append("text")
         .attr("id", "hover-state")
-        .attr("x", width - margin.right - 10) // Position on bottom right
-        .attr("y", height - margin.bottom - 30) // Just above the x-axis line
-        .attr("text-anchor", "end")
+        .attr("x", labelX)
+        .attr("y", labelY)
+        .attr("text-anchor", "start")
         .attr("font-size", "14px")
         .attr("fill", "#333")
         .style("font-weight", "bold");
 
-    hoverLabel
+    labelGroup
         .append("text")
         .attr("id", "hover-count")
-        .attr("x", width - margin.right - 10) // Position on bottom right
-        .attr("y", height - margin.bottom - 10) // Adjust position slightly below the state
-        .attr("text-anchor", "end")
+        .attr("x", labelX)
+        .attr("y", labelY + 20) // Slightly below the state label
+        .attr("text-anchor", "start")
         .attr("font-size", "14px")
         .attr("fill", "#333")
         .style("font-weight", "bold");
@@ -85,8 +90,10 @@ function drawBarChart(stateData, onBarClick) {
         .attr("height", yScale.bandwidth()) // Bar height based on band scale
         .attr("fill", "brown")
         .on("mouseover", function (event, d) {
-            // Show the hover label with state and count
-            hoverLabel.style("visibility", "visible");
+            // Show the hover label
+            labelGroup.style("visibility", "visible");
+
+            // Update the static label with the state and count
             d3.select("#hover-state").text(`State: ${d.State}`);
             d3.select("#hover-count").text(`Count: ${d.Accident_Count}`);
 
@@ -97,7 +104,7 @@ function drawBarChart(stateData, onBarClick) {
         })
         .on("mouseout", function () {
             // Hide the hover label
-            hoverLabel.style("visibility", "hidden");
+            labelGroup.style("visibility", "hidden");
 
             // Remove the highlight from the bar
             d3.select(this).attr("stroke", null);
