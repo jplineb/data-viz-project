@@ -1,7 +1,7 @@
 function drawBarChart(stateData, onBarClick) {
     const width = document.getElementById("barChart").offsetWidth; // Dynamically adapt to container
     const height = document.getElementById("barChart").offsetHeight; // Dynamically adapt to container
-    const margin = { top: 20, right: 20, bottom: 50, left: 100 }; // Adjust margins for horizontal layout
+    const margin = { top: 20, right: 20, bottom: 50, left: 100 }; // Adjust margins for layout
 
     const svg = d3
         .select("#barChart")
@@ -60,6 +60,27 @@ function drawBarChart(stateData, onBarClick) {
     svg.append("g")
         .attr("transform", `translate(${margin.left},0)`) // Move to the left
         .call(d3.axisLeft(yScale).tickSizeOuter(0)); // Remove outer ticks
+
+    // Add X-axis Label
+    svg.append("text")
+        .attr("id", "x-axis-label")
+        .attr("x", (width - margin.left - margin.right) / 2 + margin.left) // Center horizontally
+        .attr("y", height - margin.bottom + 40) // Below the x-axis
+        .attr("text-anchor", "middle")
+        .attr("font-size", "14px")
+        .attr("fill", "#333")
+        .text("Accident Count");
+
+    // Add Y-axis Label
+    svg.append("text")
+        .attr("id", "y-axis-label")
+        .attr("x", -height / 2) // Centered vertically
+        .attr("y", margin.left - 35) // To the left of the y-axis
+        .attr("text-anchor", "middle")
+        .attr("font-size", "14px")
+        .attr("fill", "#333")
+        .attr("transform", "rotate(-90)") // Rotate for y-axis orientation
+        .text("States");
 
     // Static Label for State and Count (Initially Hidden)
     const labelGroup = svg
