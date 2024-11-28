@@ -53,3 +53,14 @@ header {
   font-size: 0.9em;
   pointer-events: none; /* Ensure tooltip does not interfere with hovering */
 }
+
+#legend text {
+  fill: #333;
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+}
+
+#legend rect {
+  stroke: #ccc;
+  stroke-width: 1px;
+}
