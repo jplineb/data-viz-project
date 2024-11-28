@@ -1,10 +1,10 @@
 function drawMap(countyData, geoData, selectedState = null) {
-    const width = document.getElementById("map").offsetWidth; // Dynamically adapt to container width
-    const height = document.getElementById("map").offsetHeight; // Dynamically adapt to container height
+    const width = document.getElementById("map").offsetWidth;
+    const height = document.getElementById("map").offsetHeight;
 
     const svg = d3
         .select("#map")
-        .html("") // Clear previous map on redraw
+        .html("")
         .append("svg")
         .attr("width", width)
         .attr("height", height);
@@ -12,15 +12,14 @@ function drawMap(countyData, geoData, selectedState = null) {
     const projection = d3.geoAlbersUsa().fitSize([width, height], geoData);
     const path = d3.geoPath().projection(projection);
 
-    // Logarithmic scale for color, ensuring good differentiation for both low and high values (color scale stays unchanged)
+    // Logarithmic scale for map colors
     const colorScale = d3
-        .scaleSequential(d3.interpolateYlOrRd) // Use a continuous color scale (Yellow-Red)
+        .scaleSequential(d3.interpolateYlOrRd)
         .domain([
-            Math.log(1), // Avoid log(0), use log(1) as the lower bound (log(1) = 0)
-            Math.log(d3.max(countyData, (d) => +d.Accident_Count)) // Log of the maximum value
+            Math.log(1), // Avoid log(0), use log(1) as the lower bound
+            Math.log(85035), // Maximum accident count
         ]);
 
-    // Create an absolutely positioned tooltip div
     let tooltip = d3.select(".tooltip");
     if (tooltip.empty()) {
         tooltip = d3
@@ -37,10 +36,9 @@ function drawMap(countyData, geoData, selectedState = null) {
             .style("font-weight", "normal")
             .style("color", "#333")
             .style("z-index", "10")
-            .style("border", "1px solid #ddd"); // Add a border for clean separation
+            .style("border", "1px solid #ddd");
     }
 
-    // Draw county shapes (the map)
     svg.selectAll("path")
         .data(geoData.features)
         .join("path")
@@ -65,8 +63,8 @@ function drawMap(countyData, geoData, selectedState = null) {
                         county ? +county.Accident_Count : 0
                     }`
                 )
-                .style("left", `${event.pageX + 10}px`) // Dynamic position
-                .style("top", `${event.pageY - 40}px`); // Adjust above the pointer
+                .style("left", `${event.pageX + 10}px`)
+                .style("top", `${event.pageY - 40}px`);
 
             d3.select(event.currentTarget)
                 .attr("stroke", "black")
@@ -74,7 +72,7 @@ function drawMap(countyData, geoData, selectedState = null) {
         })
         .on("mousemove", (event) => {
             tooltip
-                .style("left", `${event.pageX + 10}px`) // Follow the pointer
+                .style("left", `${event.pageX + 10}px`)
                 .style("top", `${event.pageY - 40}px`);
         })
         .on("mouseout", (event) => {
@@ -84,7 +82,6 @@ function drawMap(countyData, geoData, selectedState = null) {
                 .attr("stroke-width", 0.5);
         });
 
-    // Highlight state border if a state is selected
     if (selectedState) {
         svg.selectAll(".state-border")
             .data(
@@ -94,9 +91,66 @@ function drawMap(countyData, geoData, selectedState = null) {
             .attr("d", path)
             .attr("class", "state-border")
             .attr("fill", "none")
-            .attr("stroke", "#333333") // Border color for selected state
+            .attr("stroke", "#333333")
             .attr("stroke-width", 1);
     }
 
-    // Legend code has been removed as per request.
+    // Legend Position Control
+    const legendPosition = {
+        x: width - 200, // Adjust horizontal position
+        y: height / 3, // Adjust vertical position
+    };
+
+    const legendWidth = 10;
+    const legendHeight = 200;
+
+    const legendGroup = svg.append("g")
+        .attr("id", "legend")
+        .attr("transform", `translate(${legendPosition.x}, ${legendPosition.y})`);
+
+    const defs = svg.append("defs");
+    const linearGradient = defs.append("linearGradient")
+        .attr("id", "color-gradient")
+        .attr("x1", "0%")
+        .attr("x2", "0%")
+        .attr("y1", "100%")
+        .attr("y2", "0%");
+
+    // Define gradient stops based on log scale
+    const stops = [
+        { value: 1, offset: "0%" },
+        { value: 20000, offset: "33%" },
+        { value: 40000, offset: "66%" },
+        { value: 85035, offset: "100%" },
+    ];
+
+    stops.forEach((stop) => {
+        linearGradient.append("stop")
+            .attr("offset", stop.offset)
+            .attr("stop-color", colorScale(Math.log(stop.value)));
+    });
+
+    legendGroup.append("rect")
+        .attr("width", legendWidth)
+        .attr("height", legendHeight)
+        .style("fill", "url(#color-gradient)");
+
+    const legendScale = d3.scaleLinear() // Linear scale for legend
+        .domain([0, 85035]) // Start at 0, max value at the top
+        .range([legendHeight, 0]); // Top-to-bottom scale
+
+    const legendAxis = d3.axisRight(legendScale)
+        .ticks(5) // Adjust number of ticks
+        .tickFormat(d3.format(".0f")); // Format as integers
+
+    legendGroup.append("g")
+        .attr("transform", `translate(${legendWidth}, 0)`)
+        .call(legendAxis);
+
+    legendGroup.append("text")
+        .attr("x", legendWidth / 2)
+        .attr("y", -10)
+        .attr("text-anchor", "middle")
+        .style("font-size", "12px")
+        .text("Accident Count");
 }
