@@ -69,16 +69,6 @@ function drawMap(countyData, geoData, selectedState = null, accidentData) {
             d3.select(event.currentTarget)
                 .attr("stroke", "black")
                 .attr("stroke-width", 1.5);
-            
-            // Filter accidents for this county - fixed property names
-            const countyAccidents = accidentData.filter(accident => 
-                accident.County === d.properties.County && 
-                accident.State === d.properties.State
-            );
-            
-            if (countyAccidents.length > 0) {
-                createTimeDistribution(countyAccidents, d.properties.State, `${d.properties.County}, ${d.properties.State}`);
-            }
         })
         .on("mousemove", (event) => {
             tooltip
@@ -90,8 +80,18 @@ function drawMap(countyData, geoData, selectedState = null, accidentData) {
             d3.select(event.currentTarget)
                 .attr("stroke", "#aaa")
                 .attr("stroke-width", 0.5);
+        })
+        .on("click", (event, d) => {
+            const countyAccidents = accidentData.filter(accident => 
+                accident.County === d.properties.County && 
+                accident.State === d.properties.State
+            );
             
-            createTimeDistribution(accidentData, null, "Nationwide");
+            if (countyAccidents.length > 0) {
+                createTimeDistribution(countyAccidents, d.properties.State, `${d.properties.County}, ${d.properties.State}`);
+            } else {
+                createTimeDistribution(accidentData, null, "Nationwide");
+            }
         });
 
     if (selectedState) {
