@@ -1,4 +1,4 @@
-function drawMap(countyData, geoData, selectedState = null) {
+function drawMap(countyData, geoData, selectedState = null, accidentData) {
     const width = document.getElementById("map").offsetWidth;
     const height = document.getElementById("map").offsetHeight;
 
@@ -55,7 +55,7 @@ function drawMap(countyData, geoData, selectedState = null) {
             const county = countyData.find(
                 (c) => c.County === d.properties.County && c.State === d.properties.State
             );
-
+        
             tooltip
                 .style("visibility", "visible")
                 .html(
@@ -65,10 +65,20 @@ function drawMap(countyData, geoData, selectedState = null) {
                 )
                 .style("left", `${event.pageX + 10}px`)
                 .style("top", `${event.pageY - 40}px`);
-
+        
             d3.select(event.currentTarget)
                 .attr("stroke", "black")
                 .attr("stroke-width", 1.5);
+            
+            // Filter accidents for this county - fixed property names
+            const countyAccidents = accidentData.filter(accident => 
+                accident.County === d.properties.County && 
+                accident.State === d.properties.State
+            );
+            
+            if (countyAccidents.length > 0) {
+                createTimeDistribution(countyAccidents, d.properties.State, `${d.properties.County}, ${d.properties.State}`);
+            }
         })
         .on("mousemove", (event) => {
             tooltip
@@ -80,6 +90,8 @@ function drawMap(countyData, geoData, selectedState = null) {
             d3.select(event.currentTarget)
                 .attr("stroke", "#aaa")
                 .attr("stroke-width", 0.5);
+            
+            createTimeDistribution(accidentData, null, "Nationwide");
         });
 
     if (selectedState) {
@@ -97,7 +109,7 @@ function drawMap(countyData, geoData, selectedState = null) {
 
     // Legend Position Control
     const legendPosition = {
-        x: width - 200, // Adjust horizontal position
+        x: width - 300, // Adjust horizontal position
         y: height / 3, // Adjust vertical position
     };
 

@@ -64,3 +64,16 @@ header {
   stroke: #ccc;
   stroke-width: 1px;
 }
+
+#time-distribution-container {
+  /* background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin: 20px 0;
+  padding: 20px; */
+  position: absolute;
+  top: 57%;
+  left: 50%;
+  width: 40%;
+  height: 15%;
+}
