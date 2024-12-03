@@ -1,12 +1,21 @@
 function createTimeDistribution(accidentsData, stateAbbr, title=null) {
 
+    // Clear existing chart
     d3.select("#time-distribution-container").html("");
 
-    const margin = { top: 75, right: 75, bottom: 75, left: 75 };
-    const width = 434 - margin.left - margin.right;
-    const height = 434 - margin.top - margin.bottom;
-    const innerRadius = 10;
-    const outerRadius = Math.min(width, height) / 2;
+    // Get container dimensions
+    const container = d3.select("#time-distribution-container");
+    const containerWidth = container.node().getBoundingClientRect().width;
+    const containerHeight = container.node().getBoundingClientRect().height;
+
+    // Set margins and dimensions
+    const margin = { top: 30, right: 30, bottom: 30, left: 30 };
+    const width = containerWidth - margin.left - margin.right;
+    const height = containerHeight - margin.top - margin.bottom;
+    
+    // Calculate radii based on container size
+    const innerRadius = Math.min(width, height) * 0.005;
+    const outerRadius = Math.min(width, height) * 0.4;
 
     const svg = d3.select("#time-distribution-container")
         .append("svg")

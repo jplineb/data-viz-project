@@ -1,7 +1,8 @@
 function drawBarChart(stateData, onBarClick) {
-    const width = document.getElementById("barChart").offsetWidth; // Dynamically adapt to container
-    const height = document.getElementById("barChart").offsetHeight; // Dynamically adapt to container
-    const margin = { top: 20, right: 20, bottom: 50, left: 100 }; // Adjust margins for layout
+    const container = d3.select("#barChart");
+    const width = container.node().getBoundingClientRect().width;
+    const height = container.node().getBoundingClientRect().height;
+    const margin = { top: 20, right: 20, bottom: 50, left: 80 };
 
     const svg = d3
         .select("#barChart")

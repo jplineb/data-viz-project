@@ -1,6 +1,7 @@
 function drawMap(countyData, geoData, selectedState = null, accidentData) {
-    const width = document.getElementById("map").offsetWidth;
-    const height = document.getElementById("map").offsetHeight;
+    const container = d3.select("#map");
+    const width = container.node().getBoundingClientRect().width;
+    const height = container.node().getBoundingClientRect().height;
 
     const svg = d3
         .select("#map")
@@ -108,17 +109,27 @@ function drawMap(countyData, geoData, selectedState = null, accidentData) {
     }
 
     // Legend Position Control
+    const legendWidth = 20;
+    const legendHeight = 150;
     const legendPosition = {
-        x: width - 1000, // Adjust horizontal position
-        y: height / 10, // Adjust vertical position
+        x: width - legendWidth - 70, // Position from right edge
+        y: height - legendHeight - 45, // Position from bottom edge
     };
-
-    const legendWidth = 10;
-    const legendHeight = 200;
 
     const legendGroup = svg.append("g")
         .attr("id", "legend")
         .attr("transform", `translate(${legendPosition.x}, ${legendPosition.y})`);
+    
+    // Add white background with border for legend
+    legendGroup.append("rect")
+        .attr("x", -10)
+        .attr("y", -10)
+        .attr("width", legendWidth + 50)
+        .attr("height", legendHeight + 35)
+        .attr("fill", "white")
+        .attr("stroke", "#ddd")
+        .attr("rx", 5)
+        .attr("ry", 5);
 
     const defs = svg.append("defs");
     const linearGradient = defs.append("linearGradient")
@@ -159,10 +170,21 @@ function drawMap(countyData, geoData, selectedState = null, accidentData) {
         .attr("transform", `translate(${legendWidth}, 0)`)
         .call(legendAxis);
 
+    // Add legend title
     legendGroup.append("text")
         .attr("x", legendWidth / 2)
         .attr("y", -10)
         .attr("text-anchor", "middle")
-        .style("font-size", "12px")
-        .text("Accident Count");
+        .style("font-size", "11px")
+        .style("font-weight", "bold")
+        .text("Accidents");
+
+    // Add interaction hint
+    legendGroup.append("text")
+        .attr("x", legendWidth / 2)
+        .attr("y", legendHeight + 35)
+        .attr("text-anchor", "middle")
+        .style("font-size", "10px")
+        .style("fill", "#666")
+        .text("Click county for details");
 }
