@@ -109,8 +109,8 @@ function drawMap(countyData, geoData, selectedState = null, accidentData) {
 
     // Legend Position Control
     const legendPosition = {
-        x: width - 300, // Adjust horizontal position
-        y: height / 3, // Adjust vertical position
+        x: width - 1000, // Adjust horizontal position
+        y: height / 10, // Adjust vertical position
     };
 
     const legendWidth = 10;
