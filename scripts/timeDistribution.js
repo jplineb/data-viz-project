@@ -2,7 +2,7 @@ function createTimeDistribution(accidentsData, stateAbbr, title=null) {
 
     d3.select("#time-distribution-container").html("");
 
-    const margin = { top: 75, right: 50, bottom: 50, left: 50 };
+    const margin = { top: 75, right: 75, bottom: 75, left: 75 };
     const width = 434 - margin.left - margin.right;
     const height = 434 - margin.top - margin.bottom;
     const innerRadius = 10;
@@ -179,7 +179,7 @@ function createTimeDistribution(accidentsData, stateAbbr, title=null) {
     svg.append("text")
         .attr("class", "chart-title")
         .attr("text-anchor", "middle")
-        .attr("transform", `translate(0, ${-height/2 - 50})`)
+        .attr("transform", `translate(${outerRadius + 60}, 0) rotate(90)`)
         .style("font-size", "18px")
         .style("font-weight", "bold")
         .style("fill", "#212529")
