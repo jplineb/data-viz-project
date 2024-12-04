@@ -1,4 +1,5 @@
-function drawBarChart(stateData, onBarClick) {
+function drawBarChart(stateData, populationData, onBarClick) {
+    let isPerCapitaView = false;
     const container = d3.select("#barChart");
     const width = container.node().getBoundingClientRect().width;
     const height = container.node().getBoundingClientRect().height;
@@ -25,6 +26,11 @@ function drawBarChart(stateData, onBarClick) {
         TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia", WA: "Washington",
         WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", DC: "District of Columbia"
     };
+    stateData.forEach(d => {
+        const statePopulation = populationData.find(p => p.State === d.State)?.Population;
+        d.AccidentsPerCapita = statePopulation ? 
+            (+d.Accident_Count / +statePopulation) * 100000 : 0; // per 100,000 residents
+    });
 
     // Sort the data in descending order based on Accident_Count
     stateData.sort((a, b) => d3.descending(+a.Accident_Count, +b.Accident_Count));
@@ -35,12 +41,25 @@ function drawBarChart(stateData, onBarClick) {
         .domain([0, d3.max(stateData, (d) => +d.Accident_Count)])
         .nice()
         .range([margin.left, width - margin.right]); // Horizontal range
+    
+    const xScalePerCapita = d3
+        .scaleLinear()
+        .domain([0, d3.max(stateData, (d) => d.AccidentsPerCapita)])
+        .nice()
+        .range([margin.left, width - margin.right]);
 
     const yScale = d3
         .scaleBand()
         .domain(stateData.map((d) => d.State)) // The sorted states
         .range([margin.top, height - margin.bottom]) // Vertical range
         .padding(0.1);
+
+    // Toggle visibility of per capita bars
+    function togglePerCapitaBars() {
+            svg.selectAll(".bar-capita")
+                .style("display", isPerCapitaView ? "block" : "none");
+            isPerCapitaView = !isPerCapitaView;
+        }
 
     // X-axis
     svg.append("g")
@@ -129,12 +148,13 @@ function drawBarChart(stateData, onBarClick) {
         .on("mouseover", function (event, d) {
             // Show the hover label
             labelGroup.style("visibility", "visible");
-
-            // Update the static label with the full state name and count
             d3.select("#hover-state").text(`State: ${stateNames[d.State]}`);
-            d3.select("#hover-count").text(`Count: ${d.Accident_Count}`);
-
-            // Highlight the hovered bar with a gold border
+            d3.select("#hover-count")
+                .text(`Total Count: ${d.Accident_Count}`)
+                .append("tspan")
+                .attr("x", labelX)
+                .attr("dy", "1.2em")
+                .text(`Per 100k Residents: ${Math.round(d.AccidentsPerCapita)}`);
             d3.select(this)
                 .attr("stroke", "#FFD700")
                 .attr("stroke-width", 2);
@@ -147,4 +167,21 @@ function drawBarChart(stateData, onBarClick) {
             d3.select(this).attr("stroke", null);
         })
         .on("click", (event, d) => onBarClick(d.State)); // Call click interaction
+    
+    svg.selectAll(".bar-capita")
+        .data(stateData)
+        .join("rect")
+        .attr("class", "bar-capita")
+        .attr("x", margin.left)
+        .attr("y", d => yScale(d.State) + yScale.bandwidth() * 0.25)
+        .attr("width", d => {
+            const barWidth = xScalePerCapita(d.AccidentsPerCapita) - margin.left;
+            return barWidth > 2 ? barWidth : 2;
+        })
+        .attr("height", yScale.bandwidth() * 0.5)
+        .attr("fill", "steelblue")
+        .attr("opacity", 0.7)
+        .style("display", "none");
+
+    return togglePerCapitaBars;
 }

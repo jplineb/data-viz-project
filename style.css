@@ -64,6 +64,12 @@ header h1 {
   background-color: #f8f9fa;
 }
 
+#togglePerCapita {
+  display: block;
+  margin: 10px auto;
+  padding: 8px 16px;
+}
+
 .tooltip {
   position: absolute;
   background: #fff;
