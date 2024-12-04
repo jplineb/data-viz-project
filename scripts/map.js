@@ -1,8 +1,8 @@
-function drawMap(countyData, geoData, selectedState = null, accidentData) {
-    const container = d3.select("#map");
+const container = d3.select("#map");
     const width = container.node().getBoundingClientRect().width;
     const height = container.node().getBoundingClientRect().height;
 
+function drawMap(countyData, geoData, selectedState = null, accidentData) {
     const svg = d3
         .select("#map")
         .html("")
@@ -10,7 +10,10 @@ function drawMap(countyData, geoData, selectedState = null, accidentData) {
         .attr("width", width)
         .attr("height", height);
 
-    const projection = d3.geoAlbersUsa().fitSize([width, height], geoData);
+    const projection = d3.geoAlbersUsa()
+        .translate([width / 2, height / 2])
+        .scale(Math.min(width, height) * 1.7);
+
     const path = d3.geoPath().projection(projection);
 
     // Logarithmic scale for map colors
