@@ -29,14 +29,32 @@ function createTimeDistribution(accidentsData, stateAbbr, title=null) {
 
     // Process time data
     const timeData = Array.from({length: 24}, (_, hour) => {
-        const count = accidentsData.filter(d => {
+        const hourAccidents = accidentsData.filter(d => {
             const accidentHour = new Date(d.Start_Time).getHours();
             return accidentHour === hour;
-        }).length;
-        
+        });
+    
+        const total = hourAccidents.length;
+        const severityCounts = hourAccidents.reduce((acc, d) => {
+            acc[d.Severity] = (acc[d.Severity] || 0) + 1;
+            return acc;
+        }, {});
+    
+        // Create array for all severities 1-4
+        const severityPercentages = [1, 2, 3, 4].map(severity => {
+            const count = severityCounts[severity] || 0;
+            const percentage = (count / total * 100).toFixed(1);
+            return {
+                severity,
+                percentage,
+                count
+            };
+        });
+    
         return {
             hour,
-            total: count
+            total,
+            severityPercentages
         };
     });
 
@@ -133,18 +151,27 @@ function createTimeDistribution(accidentsData, stateAbbr, title=null) {
         d3.select(this)
             .style("opacity", 1)
             .style("filter", "brightness(1.1)");
-
-        // Dynamically update tooltip using auto-generated text html
+    
+        const severityColors = {
+            1: "#2ecc71", // green
+            2: "#f1c40f", // yellow
+            3: "#e67e22", // orange
+            4: "#e74c3c"  // red
+        };
+    
+        const severityHTML = d.severityPercentages
+            .map(s => `<div style="color: ${severityColors[s.severity]}; font-weight: bold;">
+                Severity ${s.severity}: ${s.percentage}%
+            </div>`)
+            .join("");
+    
         tooltip.style("visibility", "visible")
             .html(`
                 <div style="text-align: center;">
                     <strong>${d.hour === 0 ? "12 AM" : 
                              d.hour === 12 ? "12 PM" : 
                              d.hour > 12 ? `${d.hour-12} PM` : `${d.hour} AM`}</strong>
-                    <br>
-                    <span style="font-size: 1.2em;">${d3.format(",")(d.total)}</span>
-                    <br>
-                    accidents
+                    ${severityHTML}
                 </div>
             `);
     })
@@ -158,31 +185,6 @@ function createTimeDistribution(accidentsData, stateAbbr, title=null) {
             .style("filter", "none");
         tooltip.style("visibility", "hidden");
     });
-
-    // Add center circle with total accidents
-    // const totalAccidents = d3.sum(timeData, d => d.total);
-    
-    // svg.append("circle")
-    //     .attr("r", innerRadius - 10)
-    //     .attr("fill", "#fff")
-    //     .attr("stroke", "#dee2e6")
-    //     .attr("stroke-width", 2);
-
-    // svg.append("text")
-    //     .attr("text-anchor", "middle")
-    //     .attr("dominant-baseline", "middle")
-    //     .style("font-size", "28px")
-    //     .style("font-weight", "bold")
-    //     .style("fill", "#495057")
-    //     .text(d3.format(",")(totalAccidents));
-
-    // svg.append("text")
-    //     .attr("text-anchor", "middle")
-    //     .attr("dominant-baseline", "middle")
-    //     .attr("y", 25)
-    //     .style("font-size", "14px")
-    //     .style("fill", "#6c757d")
-    //     .text("Total Accidents");
 
     // Add title
     svg.append("text")
