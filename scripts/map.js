@@ -86,6 +86,15 @@ function drawMap(countyData, geoData, selectedState = null, accidentData) {
                 .attr("stroke-width", 0.5);
         })
         .on("click", (event, d) => {
+            // Always update state visualization when clicking a county
+            createTimeDistribution(
+                accidentData,
+                'state',
+                d.properties.State,
+                '#time-distribution-state'
+            );
+
+            // Then update county visualization
             const countyAccidents = accidentData.filter(accident => 
                 accident.County === d.properties.County && 
                 accident.State === d.properties.State
@@ -93,13 +102,13 @@ function drawMap(countyData, geoData, selectedState = null, accidentData) {
             
             if (countyAccidents.length > 0) {
                 createTimeDistribution(
-                    accidentData,  // Using full accident data
+                    accidentData,
                     'county',
-                    `${d.properties.State}:${d.properties.County}`, // Format as STATE:COUNTY
+                    `${d.properties.State}:${d.properties.County}`,
                     '#time-distribution-county'
                 );
             } else {
-                // If no accidents in county, show placeholder or default view
+                // If no accidents in county, show placeholder
                 d3.select("#time-distribution-county")
                     .html("")
                     .append("div")
