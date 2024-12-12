@@ -56,16 +56,61 @@ function drawBarChart(stateData, populationData, onBarClick) {
 
     // Toggle visibility of per capita bars
     function togglePerCapitaBars() {
-            svg.selectAll(".bar-capita")
-                .style("display", isPerCapitaView ? "block" : "none");
-            isPerCapitaView = !isPerCapitaView;
-        }
+        isPerCapitaView = !isPerCapitaView;
+        
+        // Resort the data based on the current view
+        stateData.sort((a, b) => 
+            isPerCapitaView ? 
+            d3.descending(a.AccidentsPerCapita, b.AccidentsPerCapita) : 
+            d3.descending(+a.Accident_Count, +b.Accident_Count)
+        );
+        
+        // Update the y-scale domain with the new order
+        yScale.domain(stateData.map(d => d.State));
+        
+        // Update the y-axis with transition
+        svg.selectAll(".y-axis")
+            .transition()
+            .duration(750)
+            .call(d3.axisLeft(yScale).tickSizeOuter(0));
+
+        // Update x-axis with transition
+        svg.selectAll(".x-axis")
+            .transition()
+            .duration(750)
+            .call(d3.axisBottom(isPerCapitaView ? xScalePerCapita : xScale).ticks(6))
+            .call(g => g.select(".domain").remove());
+        
+        // Update the positions and widths of both types of bars
+        svg.selectAll(".bar")
+            .transition()
+            .duration(750)
+            .attr("y", d => yScale(d.State))
+            .attr("width", d => {
+                const scale = isPerCapitaView ? xScalePerCapita : xScale;
+                const value = isPerCapitaView ? d.AccidentsPerCapita : +d.Accident_Count;
+                const barWidth = scale(value) - margin.left;
+                return barWidth > 2 ? barWidth : 2;
+            })
+            .style("display", isPerCapitaView ? "none" : "block");
+            
+        svg.selectAll(".bar-capita")
+            .transition()
+            .duration(750)
+            .attr("y", d => yScale(d.State))
+            .style("display", isPerCapitaView ? "block" : "none");
+
+        // Update x-axis label
+        svg.select("#x-axis-label")
+            .text(isPerCapitaView ? "Accidents per 100,000 Residents" : "Accident Count");
+    }
 
     // X-axis
     svg.append("g")
-        .attr("transform", `translate(0,${height - margin.bottom})`) // Move to the bottom
-        .call(d3.axisBottom(xScale).ticks(6)) // Add ticks dynamically
-        .call((g) => g.select(".domain").remove()); // Remove domain line for cleaner look
+        .attr("class", "x-axis")
+        .attr("transform", `translate(0,${height - margin.bottom})`)
+        .call(d3.axisBottom(xScale).ticks(6))
+        .call(g => g.select(".domain").remove());
 
     // Add X-axis line
     svg.append("line")
@@ -78,8 +123,9 @@ function drawBarChart(stateData, populationData, onBarClick) {
 
     // Y-axis
     svg.append("g")
-        .attr("transform", `translate(${margin.left},0)`) // Move to the left
-        .call(d3.axisLeft(yScale).tickSizeOuter(0)); // Remove outer ticks
+        .attr("class", "y-axis")
+        .attr("transform", `translate(${margin.left},0)`)
+        .call(d3.axisLeft(yScale).tickSizeOuter(0));
 
     // Add X-axis Label
     svg.append("text")
@@ -173,15 +219,33 @@ function drawBarChart(stateData, populationData, onBarClick) {
         .join("rect")
         .attr("class", "bar-capita")
         .attr("x", margin.left)
-        .attr("y", d => yScale(d.State) + yScale.bandwidth() * 0.25)
+        .attr("y", d => yScale(d.State))
         .attr("width", d => {
             const barWidth = xScalePerCapita(d.AccidentsPerCapita) - margin.left;
             return barWidth > 2 ? barWidth : 2;
         })
-        .attr("height", yScale.bandwidth() * 0.5)
+        .attr("height", yScale.bandwidth())
         .attr("fill", "steelblue")
         .attr("opacity", 0.7)
-        .style("display", "none");
+        .style("display", "none")
+        .on("mouseover", function (event, d) {
+            labelGroup.style("visibility", "visible");
+            d3.select("#hover-state").text(`State: ${stateNames[d.State]}`);
+            d3.select("#hover-count")
+                .text(`Total Count: ${d.Accident_Count}`)
+                .append("tspan")
+                .attr("x", labelX)
+                .attr("dy", "1.2em")
+                .text(`Per 100k Residents: ${Math.round(d.AccidentsPerCapita)}`);
+            d3.select(this)
+                .attr("stroke", "#FFD700")
+                .attr("stroke-width", 2);
+        })
+        .on("mouseout", function () {
+            labelGroup.style("visibility", "hidden");
+            d3.select(this).attr("stroke", null);
+        })
+        .on("click", (event, d) => onBarClick(d.State));
 
     return togglePerCapitaBars;
 }
