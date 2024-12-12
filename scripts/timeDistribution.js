@@ -1,35 +1,75 @@
-function createTimeDistribution(accidentsData, stateAbbr, title=null) {
+function createTimeDistribution(accidentsData, level, regionCode, containerId) {
 
     // Clear existing chart
-    d3.select("#time-distribution-container").html("");
+    d3.select(containerId).html("");
 
-    // Get container dimensions
-    const container = d3.select("#time-distribution-container");
-    const containerWidth = container.node().getBoundingClientRect().width;
-    const containerHeight = container.node().getBoundingClientRect().height;
-
-    // Set margins and dimensions
+    // Fixed dimensions for the visualization
+    const fixedWidth = 350;
+    const fixedHeight = 350;
     const margin = { top: 30, right: 30, bottom: 30, left: 30 };
-    const width = containerWidth - margin.left - margin.right;
-    const height = containerHeight - margin.top - margin.bottom;
+    const width = fixedWidth - margin.left - margin.right;
+    const height = fixedHeight - margin.top - margin.bottom;
     
-    // Calculate radii based on container size
+    // Calculate radii based on fixed size
     const innerRadius = Math.min(width, height) * 0.005;
     const outerRadius = Math.min(width, height) * 0.4;
 
-    const svg = d3.select("#time-distribution-container")
-        .append("svg")
-        .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.top + margin.bottom)
-        .append("g")
-        .attr("transform", `translate(${width/2 + margin.left},${height/2 + margin.top})`);
+    // Add title
+    const container = d3.select(containerId);
+    container.append("div")
+        .attr("class", "clock-title")
+        .text(() => {
+            switch(level.toLowerCase()) {
+                case 'country':
+                    return 'Nationwide';
+                case 'state':
+                    return `State - ${regionCode}`;
+                case 'county':
+                    const [stateCode, countyName] = regionCode.split(':');
+                    return `County - ${countyName}, ${stateCode}`;
+                default:
+                    return '';
+            }
+        });
 
-    // Filter data for the selected state
-    // const stateAccidents = accidentsData.filter(d => d.State.toUpperCase() === stateAbbr.toUpperCase());
+    const svg = container
+        .append("svg")
+        .attr("viewBox", `0 0 ${fixedWidth} ${fixedHeight}`)
+        .append("g")
+        .attr("transform", `translate(${fixedWidth/2},${fixedHeight/2})`);
+
+    // Filter data based on geographical level
+    let filteredData = accidentsData;
+    let displayTitle;
+
+    switch(level.toLowerCase()) {
+        case 'country':
+            // No filtering needed for country level - use all data
+            displayTitle = 'United States';
+            break;
+        case 'state':
+            filteredData = accidentsData.filter(d => 
+                d.State.toUpperCase() === regionCode.toUpperCase()
+            );
+            displayTitle = regionCode;
+            break;
+        case 'county':
+            // Assuming regionCode is in format "STATE:COUNTY"
+            const [stateCode, countyName] = regionCode.split(':');
+            filteredData = accidentsData.filter(d => 
+                d.State.toUpperCase() === stateCode.toUpperCase() && 
+                d.County.toUpperCase() === countyName.toUpperCase()
+            );
+            displayTitle = `${countyName}, ${stateCode}`;
+            break;
+        default:
+            console.error('Invalid geographical level specified');
+            return;
+    }
 
     // Process time data
     const timeData = Array.from({length: 24}, (_, hour) => {
-        const hourAccidents = accidentsData.filter(d => {
+        const hourAccidents = filteredData.filter(d => {
             const accidentHour = new Date(d.Start_Time).getHours();
             return accidentHour === hour;
         });
@@ -101,7 +141,7 @@ function createTimeDistribution(accidentsData, stateAbbr, title=null) {
         .attr("y", d => -(outerRadius + 30) * Math.cos(angle(d)))
         .attr("text-anchor", "middle")
         .attr("dominant-baseline", "middle")
-        .style("font-size", "14px")
+        .style("font-size", "10px")
         .style("font-weight", "500")
         .style("fill", "#495057")
         .text(d => d === 0 ? "12 AM" : 
@@ -185,16 +225,6 @@ function createTimeDistribution(accidentsData, stateAbbr, title=null) {
             .style("filter", "none");
         tooltip.style("visibility", "hidden");
     });
-
-    // Add title
-    svg.append("text")
-        .attr("class", "chart-title")
-        .attr("text-anchor", "middle")
-        .attr("transform", `translate(${outerRadius + 60}, 0) rotate(90)`)
-        .style("font-size", "18px")
-        .style("font-weight", "bold")
-        .style("fill", "#212529")
-        .text(`24-Hour Accident Distribution - ${title || stateAbbr}`);
 
     // Add tooltip
     const tooltip = d3.select("body").append("div")

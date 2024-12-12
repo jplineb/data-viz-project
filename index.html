@@ -8,15 +8,21 @@
     <script src="https://d3js.org/d3.v7.min.js"></script>
 </head>
 <body>
+    <div id="header">
+        <h1>US Traffic Accident Trends (2021)</h1>
+        <div class="header-info">
+            <button id="togglePerCapita">Toggle Per Capita Bars</button>
+            <p><b>Data Source:</b> US Accidents (2016 - 2023) Kaggle</p>
+            <p><b>Group Members:</b> Shrayas Raju, Landon Holcomb, Tong Liu, John Paul Lineberger</p>
+        </div>
+    </div>
     <div id="dashboard">
         <div id="barChart"></div>
         <div id="map"></div>
-        <div id="time-distribution-container"></div>
-        <div id="project-info">
-            <h1>US Traffic Accident Trends (2021)</h1>
-            <p>Data Source: US Accidents (2016 - 2023) Kaggle</p>
-            <p>Group Members: Shrayas Raju, Landon Holcomb, Tong Liu, John Paul Lineberger </p>
-            <button id="togglePerCapita">Toggle Per Capita Bars</button>
+        <div id="time-distributions">
+            <div id="time-distribution-nationwide" class="time-distribution"></div>
+            <div id="time-distribution-state" class="time-distribution"></div>
+            <div id="time-distribution-county" class="time-distribution"></div>
         </div>
     </div>
     

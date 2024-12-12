@@ -92,9 +92,21 @@ function drawMap(countyData, geoData, selectedState = null, accidentData) {
             );
             
             if (countyAccidents.length > 0) {
-                createTimeDistribution(countyAccidents, d.properties.State, `${d.properties.County}, ${d.properties.State}`);
+                createTimeDistribution(
+                    accidentData,  // Using full accident data
+                    'county',
+                    `${d.properties.State}:${d.properties.County}`, // Format as STATE:COUNTY
+                    '#time-distribution-county'
+                );
             } else {
-                createTimeDistribution(accidentData, null, "Nationwide");
+                // If no accidents in county, show placeholder or default view
+                d3.select("#time-distribution-county")
+                    .html("")
+                    .append("div")
+                    .attr("class", "placeholder-text")
+                    .style("text-align", "center")
+                    .style("padding-top", "40%")
+                    .text("No accident data available for this county");
             }
         });
 
